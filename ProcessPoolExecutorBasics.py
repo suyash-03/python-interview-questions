@@ -9,7 +9,7 @@ def cpu_heavy_task(n):
     # A simple, inefficient way to burn CPU cycles
     while time.time() - start_time < 1:
         count += math.sqrt(n) # Intense calculation
-    return f"Task with input {n} finished calculation in ~1s"
+    return f"Task with input {n} finished calculation in "
 
 
 if __name__ == "__main__":
