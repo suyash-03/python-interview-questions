@@ -11,20 +11,25 @@ class TaskQueue:
         self.queue = Queue()
         self.workers = []
         self.num_workers = num_workers
-        self._stop = False
 
     def worker(self):
-        while not self._stop:
-            try:
-                func, args = self.queue.get(timeout=1)
-                func(*args)
+        while True:
+            item = self.queue.get()
+
+            if item is None:
                 self.queue.task_done()
-            except:
-                continue  # queue empty, keep checking
+                break
+
+            func, args = item
+
+            try:
+                func(*args)
+            finally:
+                self.queue.task_done()
 
     def start(self):
         for i in range(self.num_workers):
-            t = threading.Thread(target=self.worker, name=f"Worker-{i}")
+            t = threading.Thread(target=self.worker)
             t.daemon = True
             t.start()
             self.workers.append(t)
@@ -33,7 +38,9 @@ class TaskQueue:
         self.queue.put((func, args))
 
     def stop(self):
-        self._stop = True
+        for _ in self.workers:
+            self.queue.put(None)
+
         for t in self.workers:
             t.join()
 
