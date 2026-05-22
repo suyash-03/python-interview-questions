@@ -4,6 +4,10 @@ import concurrent.futures
 def add(x, y):
     return x + y
 
+def fetch_data(url):
+    # Your single, time-consuming I/O task
+    return f"Data from {url}"
+
 
 if __name__ == "__main__":
 
@@ -24,3 +28,18 @@ if __name__ == "__main__":
 
         for result in results:
             print(f"Map result: {result}")
+
+
+
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        # Submit starts the thread immediately in the background
+        future = executor.submit(fetch_data, "https://api.example.com")
+        
+        # 1. You can do other independent work here while the thread runs...
+        print("Doing other work in the main thread...")
+        
+        # 2. When you absolutely need the result, call .result()
+        # (This will block only if the thread isn't finished yet)
+        result = future.result() 
+        print(result)
